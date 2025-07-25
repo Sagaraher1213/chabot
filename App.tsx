@@ -1,23 +1,57 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useState, useEffect } from 'react';
+import { View, StatusBar, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+import SplashScreen from './src/screens/SplashScreen';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
+import AppNavigator from './src/navigation/AppNavigator';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+export interface User {
+  id?: number;
+  name: string;
+  email: string;
+  password: string;
+  role?: string;
+}
+
+const App: React.FC = () => {
+  const [showSplash, setShowSplash] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleLogin = (user: User): void => {
+    setUserInfo(user);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = (): void => {
+    setUserInfo(null);
+    setIsLoggedIn(false);
+  };
+
+  const renderScreen = () => {
+    if (showSplash) return <SplashScreen />;
+    if (!isLoggedIn || !userInfo) return <AppNavigator onLogin={handleLogin} />;
+    return <MainTabNavigator userInfo={userInfo} onLogout={handleLogout} />;
+  };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <NavigationContainer>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+        {renderScreen()}
+      </View>
+    </NavigationContainer>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

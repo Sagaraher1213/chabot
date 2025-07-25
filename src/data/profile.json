@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Sagar Aher",
+    "email": "sagar@example.com",
+    "role": "Developer"
+  },
+  {
+    "name": "Aditya Bibave",
+    "email": "aditya@example.com",
+    "role": "Designer"
+  },
+  {
+    "name": "Vitthal Gupta",
+    "email": "vitthal@example.com",
+    "role": "React Developer"
+  }
+]
