@@ -189,19 +189,30 @@ const ProfileScreen = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      let user = await AsyncStorage.getItem('userData');
+      let user:any = await AsyncStorage.getItem('userData');
+      setUserData(JSON.parse(user))
       if (!user) {
         Alert.alert('Error', 'User ID not found. Please login again.');
         return;
       }
       const parsedUser = JSON.parse(user);
-
+      console.log(parsedUser,"parsedUser****************");
+      
       const response = await axios.get(
-        `https://api.ataichatbot.mcndhanore.co.in/public/api/manage-user?p_user_id=${parsedUser?.user_id}`
+        `https://api.ataichatbot.mcndhanore.co.in/public/api/manage-user?p_ClientId=${parsedUser?.client_id
+}&p_role_abbreviation=${parsedUser?.abbreviation}&p_user_id= ${parsedUser?.user_id}`
       );
 
       if (response.data.status === 'success' && Array.isArray(response.data.data)) {
-        setUserData(response.data.data[0]);
+        console.log(response.data,"#########################");
+        
+        setUserData((prev:any)=>{
+          return {
+            ...prev,
+            ['mobile']:response.data.data[0]?.mobile
+          }
+        })
+        // setUserData(response.data.data[0]);
         // Animate content in
         Animated.parallel([
           Animated.timing(fadeAnim, {
@@ -241,85 +252,123 @@ const ProfileScreen = () => {
     fetchUserProfile();
   };
 
+  // const handleLogout = async () => {
+  //   // Animate button press
+  //   Animated.sequence([
+  //     Animated.timing(scaleAnim, {
+  //       toValue: 0.95,
+  //       duration: 100,
+  //       useNativeDriver: true,
+  //     }),
+  //     Animated.timing(scaleAnim, {
+  //       toValue: 1,
+  //       duration: 100,
+  //       useNativeDriver: true,
+  //     }),
+  //   ]).start();
+
+  //   try {
+  //     const user = await AsyncStorage.getItem('userData');
+
+  //     if (!user) {
+  //       setTimeout(() => {
+  //         navigation.reset({
+  //           index: 0,
+  //           routes: [{ name: 'Login' }],
+  //         });
+  //       }, 100);
+  //       return;
+  //     }
+
+  //     const parsedUser = JSON.parse(user);
+
+  //     if (!parsedUser?.user_id) {
+  //       await AsyncStorage.removeItem('userData');
+  //       setTimeout(() => {
+  //         navigation.reset({
+  //           index: 0,
+  //           routes: [{ name: 'Login' }],
+  //         });
+  //       }, 100);
+  //       return;
+  //     }
+
+  //     const response = await axios.post(
+  //       'https://api.ataichatbot.mcndhanore.co.in/public/api/logout',
+  //       {
+  //         user_id: parsedUser.user_id,
+  //       }
+  //     );
+
+  //     if (response?.data?.status === 'success') {
+  //       await AsyncStorage.removeItem('userData');
+
+  //       // Animate out before navigation
+  //       Animated.timing(fadeAnim, {
+  //         toValue: 0,
+  //         duration: 300,
+  //         useNativeDriver: true,
+  //       }).start(() => {
+  //         setTimeout(() => {
+  //           navigation.reset({
+  //             index: 0,
+  //             routes: [{ name: 'Login' }],
+  //           });
+  //         }, 100);
+  //       });
+  //     } else {
+  //       Alert.alert('Logout Failed', 'Unable to logout from server.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Logout Error:', error);
+
+  //     await AsyncStorage.removeItem('userData');
+  //     setTimeout(() => {
+  //       navigation.reset({
+  //         index: 0,
+  //         routes: [{ name: 'Login' }],
+  //       });
+  //     }, 100);
+  //   }
+  // };
+
   const handleLogout = async () => {
-    // Animate button press
-    Animated.sequence([
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
+  // Optional: Animate button press (if you still want the effect)
+  Animated.sequence([
+    Animated.timing(scaleAnim, {
+      toValue: 0.95,
+      duration: 100,
+      useNativeDriver: true,
+    }),
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 100,
+      useNativeDriver: true,
+    }),
+  ]).start();
 
-    try {
-      const user = await AsyncStorage.getItem('userData');
+  try {
+    await AsyncStorage.removeItem('userData');
 
-      if (!user) {
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        }, 100);
-        return;
-      }
-
-      const parsedUser = JSON.parse(user);
-
-      if (!parsedUser?.user_id) {
-        await AsyncStorage.removeItem('userData');
-        setTimeout(() => {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        }, 100);
-        return;
-      }
-
-      const response = await axios.post(
-        'https://api.ataichatbot.mcndhanore.co.in/public/api/logout',
-        {
-          user_id: parsedUser.user_id,
-        }
-      );
-
-      if (response?.data?.status === 'success') {
-        await AsyncStorage.removeItem('userData');
-
-        // Animate out before navigation
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => {
-          setTimeout(() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          }, 100);
-        });
-      } else {
-        Alert.alert('Logout Failed', 'Unable to logout from server.');
-      }
-    } catch (error) {
-      console.error('Logout Error:', error);
-
-      await AsyncStorage.removeItem('userData');
-      setTimeout(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Login' }],
-        });
-      }, 100);
-    }
-  };
+    // Optional: Fade out before navigation (if fadeAnim is used)
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    });
+  } catch (error) {
+    console.error('Logout Error:', error);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
+  }
+};
 
   const animateProfileImage = () => {
     Animated.sequence([
@@ -408,14 +457,17 @@ const ProfileScreen = () => {
                   },
                 ]}
               >
-                {/* <Image
-                  source={
-                    userData?.profile_pic
-                      ? { uri: https://yourdomain.com${userData?.DocPath}/${userData?.profile_pic} }
-                      : require('../assets/images/logo1.png')
-                  }
-                  style={styles.profileImage}
-                /> */}
+                {userData?.user_name ? (
+                  <View style={styles.initialsCircle}>
+                    <Text style={styles.initialsText}>
+                      {`${userData?.user_name?.split(' ')[0]?.[0] || ''}${userData?.user_name?.split(' ')[1]?.[0] || ''}`.toUpperCase()}
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.initialsCircle}>
+                    <Text style={styles.initialsText}>U</Text>
+                  </View>
+                )}
                 <View style={styles.imageOverlay}>
                   <View style={styles.cameraIcon}>
                     <CameraIcon size={16} color="#ffffff" />
@@ -424,9 +476,10 @@ const ProfileScreen = () => {
               </Animated.View>
             </TouchableOpacity>
 
+
             <View style={styles.nameContainer}>
               <Text style={styles.userName}>{userData?.user_name}</Text>
-              <Text style={styles.userEmail}>{userData?.email}</Text>
+              <Text style={styles.userEmail}>{userData?.username}</Text>
               {/* <View style={styles.statusBadge}>
                 <View style={[styles.statusDot, { backgroundColor: userData?.Active === 'Yes' ? '#4CAF50' : '#FF5722' }]} />
                 <Text style={styles.statusText}>{userData?.Active === 'Yes' ? 'Active' : 'Inactive'}</Text>
@@ -455,7 +508,7 @@ const ProfileScreen = () => {
             activeOpacity={0.8}
           >
             <View style={styles.logoutGradient}>
-              <Text style={styles.logoutText}>Login</Text>
+              <Text style={styles.logoutText}>Logout</Text>
             </View>
           </TouchableOpacity>
         </Animated.View>
@@ -598,6 +651,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
   },
+  initialsCircle: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#667eea',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: '#ffffff',
+  },
+  initialsText: {
+    fontSize: 40,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+
   infoIconContainer: {
     width: 40,
     height: 40,
@@ -687,3 +756,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
+
